@@ -6,7 +6,7 @@ def read_license():
         return f.read()
 
 setup(
-    name='dmx',
+    name='dmx485',
     packages=find_packages(),
     version='1.1',
     description='Simple DMX driver using an RS485 adapter',

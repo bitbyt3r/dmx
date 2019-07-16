@@ -1,7 +1,6 @@
 #!/usr/bin/python
 import threading
 import serial
-import fcntl
 import time
 
 class DMX_Serial:
@@ -15,7 +14,6 @@ class DMX_Serial:
         self.ser.parity = serial.PARITY_NONE
         self.ser.stopbits = serial.STOPBITS_TWO
         self.ser.xonoff = False
-        self.desc = self.ser.fileno()
         self.enabled = False
         self.data = bytes((0,)*512)
         self.nextdata = None
@@ -33,9 +31,7 @@ class DMX_Serial:
         while True:
             if not(self.enabled):
                 continue
-            fcntl.ioctl(self.desc, 0x5427) # Yeah, it's magic. Start Break (TIOCSBRK)
-            time.sleep(0.0001)
-            fcntl.ioctl(self.desc, 0x5428) # Yeah, it's magic. End Break (TIOCCBRK)
+            self.ser.send_break(0.0001)
             self.ser.write(bytes((0,)))
             self.ser.write(self.data)
             self.ser.flush()

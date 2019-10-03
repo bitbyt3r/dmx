@@ -18,7 +18,6 @@ class DMX_Serial:
         self.ser.parity = serial.PARITY_NONE
         self.ser.stopbits = serial.STOPBITS_TWO
         self.ser.xonoff = False
-        self.desc = self.ser.fileno()
         self.enabled = False
         self.data = bytes((0,)*512)
         self.nextdata = None
@@ -37,6 +36,9 @@ class DMX_Serial:
             if not(self.enabled):
                 continue
             if os.name == "posix":
+                # Linux does not have proper support for variable length breaks, as the behavior of TCSBRK is
+                # undefined for values other than 0. (http://man7.org/linux/man-pages/man2/ioctl_tty.2.html)
+                # Instead this controls the timing of the break directly.
                 fcntl.ioctl(self.desc, 0x5427) # Yeah, it's magic. Start Break (TIOCSBRK)
                 time.sleep(0.0001)
                 fcntl.ioctl(self.desc, 0x5428) # Yeah, it's magic. End Break (TIOCCBRK)
